@@ -69,7 +69,7 @@ Before you begin, ensure you have:
 ### 1️⃣ Clone This Repository
 
 ```bash
-git clone https://github.com/yourusername/ecommerce-video-automation.git
+git clone https://github.com/LahiruKavishkaYT/ecommerce-video-automation.git
 cd ecommerce-video-automation
 ```
 
@@ -331,11 +331,10 @@ You are free to:
 
 ## 👤 Author
 
-**Your Name**  
-- 🌐 Website: [yourwebsite.com](https://yourwebsite.com)
-- 🐦 Twitter: [@yourusername](https://twitter.com/yourusername)
-- 💼 LinkedIn: [Your Name](https://linkedin.com/in/yourprofile)
-- 📧 Email: your.email@example.com
+**Lahiru Kavishka**  
+- 🐙 GitHub: [@LahiruKavishkaYT](https://github.com/LahiruKavishkaYT)
+- 🌐 Portfolio: [github.com/LahiruKavishkaYT](https://github.com/LahiruKavishkaYT)
+- 📧 Contact: Via GitHub Issues
 
 ---
 
@@ -368,10 +367,10 @@ If this project helped you, please consider giving it a ⭐️ on GitHub!
 
 ## 📊 Project Stats
 
-![GitHub stars](https://img.shields.io/github/stars/yourusername/ecommerce-video-automation?style=social)
-![GitHub forks](https://img.shields.io/github/forks/yourusername/ecommerce-video-automation?style=social)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/ecommerce-video-automation)
-![GitHub last commit](https://img.shields.io/github/last-commit/yourusername/ecommerce-video-automation)
+![GitHub stars](https://img.shields.io/github/stars/LahiruKavishkaYT/ecommerce-video-automation?style=social)
+![GitHub forks](https://img.shields.io/github/forks/LahiruKavishkaYT/ecommerce-video-automation?style=social)
+![GitHub issues](https://img.shields.io/github/issues/LahiruKavishkaYT/ecommerce-video-automation)
+![GitHub last commit](https://img.shields.io/github/last-commit/LahiruKavishkaYT/ecommerce-video-automation)
 
 ---
 

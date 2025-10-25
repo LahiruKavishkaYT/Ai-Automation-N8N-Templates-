@@ -383,7 +383,7 @@ Since Veo 3.1 is accessed through Gemini API:
 1. In N8N, click **"Import from URL"**
 2. Enter:
    ```
-   https://raw.githubusercontent.com/yourusername/ecommerce-video-automation/main/workflows/product-video-generator.json
+   https://raw.githubusercontent.com/LahiruKavishkaYT/ecommerce-video-automation/main/workflows/product-video-generator.json
    ```
 3. Click **"Import"**
 
@@ -594,7 +594,7 @@ If you encounter issues:
 
 1. 📖 Check [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
 2. 🐛 Review N8N execution logs
-3. 💬 Open a [GitHub Issue](https://github.com/yourusername/ecommerce-video-automation/issues)
+3. 💬 Open a [GitHub Issue](https://github.com/LahiruKavishkaYT/ecommerce-video-automation/issues)
 4. 🌐 Ask in [N8N Community](https://community.n8n.io)
 
 ---

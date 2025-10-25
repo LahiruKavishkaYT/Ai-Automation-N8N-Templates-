@@ -950,10 +950,10 @@ systeminfo  # Windows
 
 ### 4. Get Help
 
-- 💬 **Open a GitHub Issue:** [github.com/yourusername/ecommerce-video-automation/issues](https://github.com/yourusername/ecommerce-video-automation/issues)
+- 💬 **Open a GitHub Issue:** [github.com/LahiruKavishkaYT/ecommerce-video-automation/issues](https://github.com/LahiruKavishkaYT/ecommerce-video-automation/issues)
 - 🌐 **N8N Community Forum:** [community.n8n.io](https://community.n8n.io)
-- 📧 **Email Support:** your.email@example.com
-- 🐦 **Twitter:** [@yourusername](https://twitter.com/yourusername)
+- 📧 **Email Support:** Via GitHub Issues
+- � **GitHub:** [@LahiruKavishkaYT](https://github.com/LahiruKavishkaYT)
 
 ---
 
