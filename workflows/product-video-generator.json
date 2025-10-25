@@ -1,0 +1,604 @@
+{
+  "name": "Veo 3.1 eCommerce Product video",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "eCommerce Catelog Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Url",
+              "placeholder": "Enter a product collection url",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        144,
+        -128
+      ],
+      "id": "90a2d424-57b7-4285-bbd2-36f367910b61",
+      "name": "form_trigger",
+      "webhookId": "6a5a7158-ef35-462f-ad48-fc81e7ec8ed6"
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json.Url }}",
+        "scrapeOptions": {
+          "options": {
+            "formats": {
+              "format": [
+                {
+                  "type": "json",
+                  "prompt": "Extract an array of products from this page. For each product, you must extract the EXACT image URL string as it appears in the HTML source code. Look in the <img> tag's src attribute or srcset attribute and copy the complete URL exactly as written in the HTML, including the full domain, path, file extension, and all query parameters. Do not modify, shorten, or transform the URL in any way.",
+                  "schema": "={\n  \"type\": \"object\",\n  \"properties\": {\n    \"products\": {\n      \"type\": \"array\",\n      \"description\": \"List of e-commerce products found on the page extracted from the main grid or list of products.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"title\": {\n            \"type\": \"string\",\n            \"description\": \"The product title or name\"\n          },\n          \"image_url\": {\n            \"type\": \"string\",\n            \"description\": \"The main product image URL. Look for the <img> tag within the product container and extract the full URL from the 'src' attribute. If the src is relative (starts with /), look for the absolute URL in 'data-src' or the first URL in 'srcset' attribute before any space or comma. Must be the complete URL as it appears in the HTML.\"\n          }\n        },\n        \"required\": [\n          \"title\",\n          \"image_url\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"products\"\n  ]\n}"
+                }
+              ]
+            },
+            "headers": {},
+            "timeout": 180000
+          }
+        },
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -128
+      ],
+      "id": "e7f4ec96-1926-43b3-a558-dc1b80060944",
+      "name": "scrape_catalog_collection",
+      "credentials": {
+        "firecrawlApi": {
+          "id": "BiW1F4EYQQlfwEnQ",
+          "name": "Firecrawl account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data.json.products",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        688,
+        -128
+      ],
+      "id": "248aa2cf-eafe-436d-8848-25802375b462",
+      "name": "split_products",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        928,
+        -128
+      ],
+      "id": "3f2fe68d-5431-4a0d-9b11-1921b3e08474",
+      "name": "limit_products"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1184,
+        -128
+      ],
+      "id": "f9264b66-eb8e-42d9-adee-fbb22c78a599",
+      "name": "iterate_products"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.image_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        -112
+      ],
+      "id": "4bda6427-d846-4bda-813d-5954fde90318",
+      "name": "fetch_image"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-generate-preview:predictLongRunning",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"instances\": [\n    {\n      \"prompt\": {{ JSON.stringify($node['set_prompt'].json.prompt) }},\n      \"image\": {\n        \"mimeType\": \"image/png\",\n        \"bytesBase64Encoded\": \"{{ $node[\"convert_to_base64\"].json.data }}\"\n      },\n      \"lastFrame\": {\n        \"mimeType\": \"image/png\",\n        \"bytesBase64Encoded\": \"{{ $node[\"convert_to_base64\"].json.data }}\"\n      }\n    }\n  ],\n  \"parameters\": {\n    \"durationSeconds\": 8,\n    \"aspectRatio\": \"9:16\",\n    \"personGeneration\": \"allow_adult\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1888,
+        304
+      ],
+      "id": "66654c5e-7462-402a-a940-a65b16e6db7f",
+      "name": "generate_video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "W7ryddwTjS3KO3cw",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "05043e09-0e28-4052-9172-3af905370437",
+              "name": "prompt",
+              "value": "Generate a video that is going to be featured on a product page of an e-commerce store. This is going to be for a clothing or fashion brand. This video must feature this exact same person that is provided on the first and last frame reference images and the article of clothing in the first and last frame reference images.\n\nIn this video, the model should strike multiple poses to feature the article of clothing so that a person looking at this product on an ecommerce website has a great idea how this article of clothing will look and feel.\n\nConstraints:\n- No music or sound effects.\n- The final output video should NOT have any audio.\n- Muted audio.\n- Muted sound effects.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2320,
+        -112
+      ],
+      "id": "c35aac30-85f5-477b-b03d-9560a2c8f5a6",
+      "name": "set_prompt"
+    },
+    {
+      "parameters": {
+        "url": "=https://generativelanguage.googleapis.com/v1beta/{{ $json.name }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2272,
+        304
+      ],
+      "id": "c2541f8c-4a66-4df7-affd-1177d0952f71",
+      "name": "fetch_status",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "W7ryddwTjS3KO3cw",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d978d0ad-9e4b-49ad-8992-40ab64744d1e",
+              "leftValue": "={{ $json.response }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "e4af1378-f9fe-4d4c-9c46-5cb3a9a06f06",
+              "leftValue": "={{ $json.response.generateVideoResponse.generatedSamples }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2480,
+        304
+      ],
+      "id": "41626731-9108-404b-9bf0-a860209b0adb",
+      "name": "check_response"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.response.generateVideoResponse.generatedSamples[0].video.uri }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2736,
+        288
+      ],
+      "id": "3ea32a80-c9e4-4c77-9ad3-305e9b0e3fbd",
+      "name": "download_video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "W7ryddwTjS3KO3cw",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        -112
+      ],
+      "id": "7587d9c6-8855-47d2-a653-feb9e578532a",
+      "name": "convert_to_base64"
+    },
+    {
+      "parameters": {
+        "name": "=Source Image #{{ $runIndex + 1 }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/u/0/folders/1dxPrU1Cf_qIpKrrL_dqx4c03BYnF2Byx",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2112,
+        -112
+      ],
+      "id": "17d24fe5-6a69-48e8-a55a-697d100a6653",
+      "name": "upload_source_image",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "5DogytZCcMLxhebs",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "=Output Video #{{ $runIndex + 1 }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/u/0/folders/1dxPrU1Cf_qIpKrrL_dqx4c03BYnF2Byx",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2928,
+        416
+      ],
+      "id": "7fd4d0ef-7659-4387-860e-45f60a2b7f70",
+      "name": "upload_output_video",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "5DogytZCcMLxhebs",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1888,
+        -112
+      ],
+      "id": "fa27285c-7a0e-4800-bf80-b5d89eef34e8",
+      "name": "convert_to_binary"
+    },
+    {
+      "parameters": {
+        "content": "Scrape Image from Provided Link\n",
+        "height": 384,
+        "width": 1008,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "b15d1ab5-ad43-47e7-9315-b0d0a37a661a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Set Prompt & Store Image on Gdrive",
+        "height": 384,
+        "width": 1360,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "121df553-bd50-4857-a086-bc9bbd31bc8e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Generate Video and Store on Gdrive",
+        "height": 400,
+        "width": 1328,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1808,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "7769e6d5-879f-4336-8a8b-7600065b8d15",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2080,
+        304
+      ],
+      "id": "1b13862a-a2c1-416f-ba8f-075333e5cbd3",
+      "name": "wait",
+      "webhookId": "c68c0f13-ed52-4cc2-86f0-a795b67f6b31"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "form_trigger": {
+      "main": [
+        [
+          {
+            "node": "scrape_catalog_collection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_catalog_collection": {
+      "main": [
+        [
+          {
+            "node": "split_products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_products": {
+      "main": [
+        [
+          {
+            "node": "limit_products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "limit_products": {
+      "main": [
+        [
+          {
+            "node": "iterate_products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "iterate_products": {
+      "main": [
+        [],
+        [
+          {
+            "node": "fetch_image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_image": {
+      "main": [
+        [
+          {
+            "node": "convert_to_base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_prompt": {
+      "main": [
+        [
+          {
+            "node": "generate_video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate_video": {
+      "main": [
+        [
+          {
+            "node": "wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_status": {
+      "main": [
+        [
+          {
+            "node": "check_response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_response": {
+      "main": [
+        [
+          {
+            "node": "download_video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "convert_to_base64": {
+      "main": [
+        [
+          {
+            "node": "convert_to_binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download_video": {
+      "main": [
+        [
+          {
+            "node": "upload_output_video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_source_image": {
+      "main": [
+        [
+          {
+            "node": "set_prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_output_video": {
+      "main": [
+        [
+          {
+            "node": "iterate_products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "convert_to_binary": {
+      "main": [
+        [
+          {
+            "node": "upload_source_image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wait": {
+      "main": [
+        [
+          {
+            "node": "fetch_status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e2c23099-70ac-4c44-8fb8-be3769fab010",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3536d6141315a3f40777238a2591424990b1202ae098cc88ef8d39958abcd1e0"
+  },
+  "id": "i5FrvxyyQH5WgRgE",
+  "tags": []
+}
